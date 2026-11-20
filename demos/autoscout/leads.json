@@ -1,0 +1,5 @@
+[
+  {"id":"SYN-101","title":"Synthetic data normalization task","source":"training-fixture","amount":35000},
+  {"id":"SYN-102","title":"Synthetic document tagging task","source":"training-fixture","amount":null},
+  {"id":"SYN-103","title":"Synthetic API review task","source":"training-fixture","amount":52000}
+]

@@ -1,0 +1,33 @@
+# Local application state / private credentials
+.env
+.env.*
+!.env.example
+*.sqlite
+*.sqlite3
+*.db
+*-backup*
+backups/
+data/
+logs/
+*.log
+*.pem
+*.key
+*.p12
+
+# Python / tools
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# System / distribution
+.DS_Store
+Thumbs.db
+dist/
+build/
+*.zip
