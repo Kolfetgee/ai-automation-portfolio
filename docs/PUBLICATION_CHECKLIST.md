@@ -1,43 +1,18 @@
-# Publication checklist / next owner action
+# Maintaining the public portfolio
 
-The new public GitHub repository **does not yet exist** at the time of this local package. Creating it is a separate user-controlled GitHub action because the current connector cannot create repositories.
+**Repository:** [Kolfetgee/ai-automation-portfolio](https://github.com/Kolfetgee/ai-automation-portfolio)  
+**Status:** Published 20 November 2026. These notes are for future updates, not instructions for creating the repository.
 
-## Create the clean repository
+## Before a public change
 
-1. In GitHub, select **New repository** (`https://github.com/new`).
-2. Owner: **Kolfetgee**. Repository name: **ai-automation-portfolio**.
-3. Visibility: **Public** (only after reviewing content of this clean package).
-4. **Enable "Add a README file"** to initialize the `main` branch. Leave `.gitignore` and license unchecked.
-5. Send the new repository URL back to ChatGPT. The connected GitHub tools can then add the reviewed portfolio files to that existing repository. If you prefer to publish manually, use the commands below instead.
+1. Check the changed files and Git history for secrets, personal data, customer information, local databases, private project material, and copyrighted assets.
+2. Run `python -W error::ResourceWarning -m unittest discover -s tests -v` locally when code changes.
+3. Verify that README claims match the current code, tests, and CI results. Do not imply a successful CI run before one is observed.
+4. Keep synthetic fixtures and public demos separate from private AUTO-SCOUT, ORION, and MAI repositories.
+5. Review the public diff before merging. Do not publish credentials, unreviewed archives, or private backup files.
 
-## Optional manual Git workflow
+## Evidence and licensing
 
-Clone the initialized repo, then copy the **contents** of the extracted portfolio folder into it (replacing the starter README):
+The [QA record](QA_EVIDENCE.md) contains the observed test evidence; the [provenance note](PROVENANCE_AND_SAFETY.md) explains which examples are synthetic and AI-assisted.
 
-```bash
-git clone https://github.com/Kolfetgee/ai-automation-portfolio.git
-cd ai-automation-portfolio
-# Copy the contents of the prepared portfolio folder here.
-python -W error::ResourceWarning -m unittest discover -s tests -v
-git add .
-git commit -m "Initial synthetic AI automation portfolio"
-git push origin main
-```
-
-Run the test suite **before** the push:
-
-```bash
-python -W error::ResourceWarning -m unittest discover -s tests -v
-```
-
-## After publication
-
-- Confirm every README link opens without authentication.
-- Check GitHub Actions on `main`; the CI result is not assumed PASS until observed.
-- Review `git ls-files` and scan new Git history for credentials, emails, `.env`, `.sqlite3`, backups, personal data, private links and copyrighted assets.
-- Keep the original AUTO-SCOUT, ORION, MAI repositories **private**; do not change visibility or merge their unfinished PRs.
-- Only after confirming the new public link, update the job application letter and CV to reference it.
-
-## License decision
-
-No public software license was chosen. If you want others to reuse the code, pick an appropriate license explicitly and consider the provenance of any dependencies/assets first. A public repository without a license is still viewable by prospective employers.
+No open-source license has been selected. Public visibility lets people inspect the code, but it does not automatically grant reuse rights. Choose and add a license only after a separate decision.

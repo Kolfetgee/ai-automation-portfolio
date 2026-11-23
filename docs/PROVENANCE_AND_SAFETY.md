@@ -31,6 +31,6 @@ The code and documentation were created with AI assistance and iterated against 
 - No continuous uptime, backup durability under power failure, security compliance, user training or business ROI is claimed.
 - The code cannot be assumed safe for real personal, medical, pharmaceutical, corporate or financial data.
 
-## Publication hygiene
+## Keeping the public repository separate
 
-This repository should be created **from these clean files** as a new Git history. Do not mirror private repositories, copy branches, import private ZIP archives, or migrate their existing `.git` directories into this portfolio.
+This portfolio was published as a new, synthetic-only repository on 20 November 2026. Keep future changes independent: do not mirror private repositories, copy their branches, import private ZIP archives, or migrate their Git histories here.

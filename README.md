@@ -1,91 +1,85 @@
-# AI Automation Portfolio
+# Python Automation Portfolio
 
-**Python | Local automation | AI agent architecture | Quality gates | SQLite | HTTP/JSON**
+[![Python tests](https://github.com/Kolfetgee/ai-automation-portfolio/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/Kolfetgee/ai-automation-portfolio/actions/workflows/tests.yml)
 
-A public, **synthetic-only** demonstration portfolio for technical interviews in AI automation, process improvement, and Python integration roles.
+**Three small, runnable Python demos about reliable automation, stateful APIs, and human review.**
 
-**Author and project owner:** [Kolfetgee](https://github.com/Kolfetgee)  
-**Original private R&D themes:** AUTO-SCOUT, ORION, MAI  
-**Public portfolio code:** newly written independent mini demos, not copies of private repositories.
+I use this portfolio to explore the parts of automation that matter beyond a happy-path script: validating input, keeping an audit trail, handling failures, and making important decisions explicit. The examples are intentionally small enough to run locally and read end to end.
 
-> **Evidence boundary.** These examples are runnable educational demos with deterministic inputs. They are **not** commercial customer implementations, real LLMs, CRM integrations, production systems, deployed services, or evidence of measured ROI. Some original project engineering work was AI-assisted; the public examples were assembled with AI assistance and reviewed through local tests. See [provenance](docs/PROVENANCE_AND_SAFETY.md).
+**Stack:** Python 3.11+ · SQLite · standard-library HTTP/JSON · `unittest` · GitHub Actions
 
-## Project map
+## Explore the projects
 
-| Demo | Business-process concept | Technologies and evidence | Open |
-| --- | --- | --- | --- |
-| **AUTO-SCOUT mini** | Manual opportunity intake, rules, decision trail, backup | Python standard library, SQLite, JSON, validation, test cases | [Source + runbook](demos/autoscout/README.md) |
-| **ORION mini** | Maker / Checker / Owner workflow and explicit approval | Python state machine, event log, negative-case testing | [Source + runbook](demos/orion/README.md) |
-| **MAI-inspired agent mock** | Stateful agent, bounded memory, human escalation, local JSON API | Python HTTP server, input validation, in-memory rules, test cases | [Source + runbook](demos/mai/README.md) |
-| **FastAPI + PostgreSQL** | Web API and container-to-database communication | FastAPI, psycopg, PostgreSQL, Docker Compose | [Separate public teaching repo](https://github.com/Kolfetgee/compose-fastapi-postgre) |
+| Project | What it demonstrates | Start here |
+| --- | --- | --- |
+| **AUTO-SCOUT** | Import fictional opportunities into SQLite without silently overwriting conflicting records. Record manual decisions and create a checked backup. | [Code and walkthrough](demos/autoscout/README.md) |
+| **ORION** | Model a task moving through Maker → Checker → Owner. Reject invalid transitions and stop on a failed review. | [Code and walkthrough](demos/orion/README.md) |
+| **MAI-inspired agent** | Expose a tiny local JSON API with bounded in-memory notes, predictable responses, escalation, and a STOP state. | [Code and walkthrough](demos/mai/README.md) |
 
-## Quick start
+I also have a separate [FastAPI + PostgreSQL exercise](https://github.com/Kolfetgee/compose-fastapi-postgre) for working with a web API and a database in Docker.
 
-**Requirements:** Python 3.11 or newer. No pip install, external accounts, real data, secrets, or cloud services needed for the three local demos.
+## Run the demos
 
-From the repository root:
+You only need **Python 3.11 or newer**. The three demos have **no third-party dependencies**, accounts, API keys, or external network calls.
+
+Clone the repository and run all tests:
 
 ```bash
+git clone https://github.com/Kolfetgee/ai-automation-portfolio.git
+cd ai-automation-portfolio
 python -m unittest discover -s tests -v
+```
 
-# ORION: scripted example of a gated decision
-python -m demos.orion.cli --scenario pass
-python -m demos.orion.cli --scenario fail
-python -m demos.orion.cli --scenario stop
+**AUTO-SCOUT — local SQLite ledger**
 
-# AUTO-SCOUT: synthetic local ledger
+```bash
 python -m demos.autoscout.cli --db sample.sqlite3 init
 python -m demos.autoscout.cli --db sample.sqlite3 import --file demos/autoscout/leads.json
 python -m demos.autoscout.cli --db sample.sqlite3 list
-python -m demos.autoscout.cli --db sample.sqlite3 decide --id SYN-101 --state SHORTLIST --reason "Manual sample review complete" --confirm-owner
 python -m demos.autoscout.cli --db sample.sqlite3 audit
+```
 
-# MAI-inspired: start an optional localhost-only JSON endpoint
+**ORION — simulated approvals**
+
+```bash
+python -m demos.orion.cli --scenario pass
+python -m demos.orion.cli --scenario fail
+python -m demos.orion.cli --scenario stop
+```
+
+**MAI-inspired agent — local HTTP API**
+
+```bash
 python -m demos.mai.api --port 8788
 ```
 
-In a second terminal, try the API:
+Then, in a second terminal:
 
 ```bash
 curl http://127.0.0.1:8788/health
 curl -X POST http://127.0.0.1:8788/turn -H "Content-Type: application/json" -d '{"message":"hello"}'
 ```
 
-For Windows PowerShell use `py -3.13 -m ...` if available. The API listens on `127.0.0.1` only; stop it with `Ctrl+C`. The generated `sample.sqlite3` is ignored by Git. Do not enter personal, customer, pharmaceutical, or medical data into the demos.
+The server listens on **127.0.0.1 only**. Stop it with `Ctrl+C`. See the project walkthroughs above for more commands and expected behavior. On Windows, use the Python launcher (`py -3.13 -m ...`) if needed; for POST examples, a shell with a real `curl` executable is easiest.
 
-## Architecture at a glance
+## Things worth looking at in the code
 
-```text
-AUTOSCOUT                   ORION                       MAI MOCK
+- **AUTO-SCOUT:** validation before writing, atomic SQLite imports, idempotent identical records, rejection of conflicts, and the SQLite backup API.
+- **ORION:** state-transition guards, a separate owner decision after checker review, and explicit STOP behavior.
+- **MAI-inspired mock:** JSON request validation, bounded `deque` memory, silence/escalation outcomes, and localhost-only HTTP handling.
 
-manual synthetic JSON       synthetic task              local HTTP/JSON
-      |                          |                            |
-validate / normalize      Maker candidate              validate input
-      |                          |                            |
-SQLite + audit           Checker verdict              bounded state/memory
-      |                          |                            |
-manual owner choice      Owner decision            reply / silence / escalate
-      |                          |                            |
-backup / verify         STOP / no execution          no model / no external API
-```
+The examples favor clarity over frameworks. Their limitations are deliberate and visible in the tests.
 
-## Test and implementation evidence
+## Tests and what they prove
 
-- **43 automated unit/integration checks** passed locally in a Linux container with **Python 3.13.5** on 2026-11-20; see [QA evidence](docs/QA_EVIDENCE.md).
-- CI configuration is included for Python 3.11-3.13 on Linux and Windows; the **remote GitHub Actions run is not yet verified**.
-- Negative tests cover invalid formats, state-transition violations, duplicate-ID conflicts, unauthorized transitions, JSON API error handling and backup overwrite attempts.
-- Tests establish behavior of these mini demos only, **not independent acceptance or security approval** for private AUTO-SCOUT / ORION / MAI systems.
+The repository contains **43 tests** across the three demos. The [GitHub Actions run on 20 November 2026](https://github.com/Kolfetgee/ai-automation-portfolio/actions/runs/44710353523) completed successfully in all **six** Python/OS jobs: Python 3.11, 3.12, and 3.13 on Linux and Windows.
 
-## How this maps to an AI automation role
+Tests cover invalid input, duplicate IDs, transaction rollback, backup checks, state-transition errors, and malformed HTTP requests. See [QA evidence](docs/QA_EVIDENCE.md) for details.
 
-See [skills-to-evidence matrix](docs/ROLE_ALIGNMENT.md). The demos help explain scoped workflow design, Python/JSON interfaces, local data handling, review gates, exception handling and technical documentation.
+## What this portfolio is — and isn't
 
-**Not demonstrated:** production integrations with corporate email/CRM, OAuth 2.0 authorization flows, paid RPA deployments, company onboarding/training, regulatory compliance, pharmaceutical data handling, business ROI measurement, production readiness or direct model inference inside these mini demos.
+These are **synthetic educational demos**, not production deployments or copies of my private projects. The Maker/Checker flow is simulated; the MAI-inspired agent uses deterministic rules, **not a real LLM**. The examples do not connect to a CRM, scrape opportunities, send messages, or authenticate users.
 
-## Publication and privacy
+The code and documentation were developed with AI assistance; [the provenance notes](docs/PROVENANCE_AND_SAFETY.md) explain the boundaries. The source and tests are public so reviewers can inspect the actual behavior rather than take a feature claim on trust.
 
-All fixture content is invented. The repository does **not** include the history, databases, backups, secrets, documents, private prompts, personal correspondence or copyrighted game assets from the original projects. No automatic data collection, email dispatch, account access or agent execution is implemented.
-
-Before uploading: read [publication checklist](docs/PUBLICATION_CHECKLIST.md) and [provenance/safety note](docs/PROVENANCE_AND_SAFETY.md).
-
-**License status:** No open-source license selected. Do not assume the code grants third-party reuse rights. Select a license separately if desired.
+**License:** No open-source license has been selected yet.

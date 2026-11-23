@@ -1,18 +1,28 @@
-# Local QA evidence
+# Test evidence
 
-**Date:** 2026-11-20  
-**Environment:** Linux container, CPython 3.13.5  
-**Command:** `python -W error::ResourceWarning -m unittest discover -s tests -q`  
-**Latest local result:** 43 tests executed, 43 passed.
+## Verified baseline — 20 November 2026
 
-Categories covered:
+**Local:** CPython 3.13.5 in a Linux container; `python -W error::ResourceWarning -m unittest discover -s tests -q` — **43 passed**.
 
-- AUTO-SCOUT: initialization, atomic import, duplicate/conflict handling, manual decisions, event trail, SQLite integrity and safe backups.
-- ORION: explicit Maker/Checker/Owner transitions, failure and STOP boundaries, rejection without evidence, no autonomous side effects.
-- MAI mock: bounded memory, escalation, silence/STOP, manual resume, local JSON API and malformed/oversized request handling.
+**GitHub Actions:** [run #44710353523](https://github.com/Kolfetgee/ai-automation-portfolio/actions/runs/44710353523) for commit `d595f452d0880fe382ebd636042054c868477983` — **6/6 jobs passed**, covering:
 
-**Remediation during assembly:** An empty `remember:` input initially bypassed the intended note-validation path; that case is now rejected. SQLite connections are explicitly closed to prevent resource warnings. Test suite passed after both changes.
+| Operating system | Python versions |
+| --- | --- |
+| Ubuntu | 3.11, 3.12, 3.13 |
+| Windows | 3.11, 3.12, 3.13 |
 
-**Not verified:** remote GitHub Actions run; deployment; behavior under high concurrency; independent penetration/security review; Windows behavior; real LLM/CRM/API integration; commercial business outcomes.
+This is the verified baseline for the initial published code, not a claim about any later change or an independent security audit.
 
-A future published GitHub repository should verify Actions output and the exact commit SHA before linking CI as accepted evidence.
+## What is tested
+
+- **AUTO-SCOUT (15):** database setup, atomic import, duplicate/conflict handling, validation, manual decisions, audit events, integrity checks, and backup safety.
+- **ORION (14):** valid and invalid Maker/Checker/Owner transitions, failed reviews, event history, and STOP.
+- **MAI mock (14):** memory limits, response modes, STOP/resume, HTTP routes, JSON validation, and oversized requests.
+
+During initial assembly, the empty `remember:` case was fixed to reject invalid notes, and SQLite connections were explicitly closed to avoid resource warnings.
+
+## Outside this evidence
+
+The tests do **not** establish real LLM behavior, independent Maker/Checker identity, authentication, production deployment, high-concurrency safety, privacy compliance, real CRM integration, or business ROI. They cover only the synthetic implementations in this repository.
+
+When code changes, use the new commit's tests and GitHub Actions run as the new evidence; do not assume this historical run covers it.
