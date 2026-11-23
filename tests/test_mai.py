@@ -1,4 +1,5 @@
 import http.client
+from html.parser import HTMLParser
 from http.server import HTTPServer
 import json
 from threading import Thread
@@ -67,14 +68,55 @@ class AgentApiTests(unittest.TestCase):
         cls.server.server_close()
         cls.thread.join(timeout=2)
 
-    def request(self, method, path, payload=None, headers=None):
+    def raw_request(self, method, path, payload=None, headers=None):
         conn = http.client.HTTPConnection("127.0.0.1", self.server.server_port, timeout=2)
         try:
             conn.request(method, path, body=payload, headers=headers or {})
             response = conn.getresponse()
-            return response.status, json.loads(response.read())
+            return response.status, response.headers, response.read()
         finally:
             conn.close()
+
+    def request(self, method, path, payload=None, headers=None):
+        status, _, body = self.raw_request(method, path, payload, headers)
+        return status, json.loads(body)
+
+    def test_console_serves_html_and_referenced_assets(self):
+        class ConsolePage(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.assets = {}
+                self.ids = set()
+
+            def handle_starttag(self, tag, attrs):
+                attrs = dict(attrs)
+                if "id" in attrs:
+                    self.ids.add(attrs["id"])
+                if tag == "script":
+                    self.assets[attrs["src"]] = "text/javascript"
+                if tag == "link" and attrs.get("rel") == "stylesheet":
+                    self.assets[attrs["href"]] = "text/css"
+
+        status, headers, body = self.raw_request("GET", "/")
+        self.assertEqual(status, 200)
+        self.assertEqual(headers.get_content_type(), "text/html")
+        self.assertEqual(headers["Cache-Control"], "no-store")
+        page = ConsolePage()
+        page.feed(body.decode("utf-8"))
+        self.assertTrue({"turn", "message", "send", "feedback", "action", "state",
+                         "memory", "reply"}.issubset(page.ids))
+        self.assertEqual(set(page.assets.values()), {"text/javascript", "text/css"})
+        for path, mime in page.assets.items():
+            with self.subTest(path=path):
+                status, headers, body = self.raw_request("GET", path)
+                self.assertEqual(status, 200)
+                self.assertEqual(headers.get_content_type(), mime)
+                self.assertTrue(body)
+
+    def test_ui_only_serves_listed_assets(self):
+        for path in ("/index.html", "/api.py", "/web/", "/console.js.bak"):
+            with self.subTest(path=path):
+                self.assertEqual(self.request("GET", path), (404, {"error": "not_found"}))
 
     def test_health_endpoint(self):
         code, payload = self.request("GET", "/health")
