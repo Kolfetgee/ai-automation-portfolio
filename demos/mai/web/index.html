@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent console · MAI mock</title>
+  <link rel="stylesheet" href="/console.css">
+  <script src="/console.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="identity">MAI / deterministic mock</p>
+      <h1>Agent console</h1>
+      <p>Send a synthetic message to the local rule engine. No model calls.</p>
+    </header>
+    <section aria-labelledby="request-title">
+      <h2 id="request-title">Send a turn</h2>
+      <form id="turn" method="post" action="/turn" autocomplete="off">
+        <label for="message">Message</label>
+        <div class="composer">
+          <input id="message" required maxlength="500" value="hello"
+                 spellcheck="false" aria-describedby="hint">
+          <button type="submit" id="send">Send turn</button>
+        </div>
+        <p id="hint" class="hint">Use invented data only. Try <code>remember: blue</code>, then <code>recall</code>.</p>
+        <p id="feedback" role="status"></p>
+        <noscript>Enable JavaScript to send a turn from this page.</noscript>
+      </form>
+    </section>
+    <section class="response" aria-labelledby="response-title">
+      <h2 id="response-title">Last successful turn</h2>
+      <div aria-live="polite" aria-atomic="true">
+        <dl>
+          <div><dt>Action</dt><dd id="action">—</dd></div>
+          <div><dt>State</dt><dd id="state">—</dd></div>
+          <div><dt>Memory items</dt><dd id="memory">—</dd></div>
+        </dl>
+        <p id="reply">Waiting for the first turn.</p>
+      </div>
+    </section>
+    <p class="footnote">Notes live in server memory. Restart the server to clear them or leave STOP.</p>
+  </main>
+</body>
+</html>

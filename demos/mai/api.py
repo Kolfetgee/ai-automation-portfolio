@@ -3,24 +3,38 @@ from __future__ import annotations
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
+from pathlib import Path
 from .agent import Agent
 
 MAX_PAYLOAD = 8192
+WEB_DIR = Path(__file__).with_name("web")
+UI_ROUTES = {
+    "/": ("index.html", "text/html"),
+    "/console.css": ("console.css", "text/css"),
+    "/console.js": ("console.js", "text/javascript"),
+}
 
 
 def make_handler(agent: Agent):
     class Handler(BaseHTTPRequestHandler):
-        def _send(self, status: int, payload: dict) -> None:
-            encoded = json.dumps(payload, ensure_ascii=True).encode("utf-8")
+        def _send_bytes(self, status: int, content_type: str, encoded: bytes) -> None:
             self.send_response(status)
-            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Type", content_type + "; charset=utf-8")
             self.send_header("Content-Length", str(len(encoded)))
             self.send_header("Cache-Control", "no-store")
+            self.send_header("Content-Security-Policy", "default-src 'self'; object-src 'none'; "
+                             "base-uri 'none'; frame-ancestors 'none'; form-action 'self'")
             self.end_headers()
             self.wfile.write(encoded)
 
+        def _send(self, status: int, payload: dict) -> None:
+            self._send_bytes(status, "application/json", json.dumps(payload).encode("utf-8"))
+
         def do_GET(self) -> None:
-            if self.path == "/health":
+            if self.path in UI_ROUTES:
+                filename, content_type = UI_ROUTES[self.path]
+                self._send_bytes(200, content_type, (WEB_DIR / filename).read_bytes())
+            elif self.path == "/health":
                 self._send(200, {"status": "ok", "mode": "deterministic_mock"})
             else:
                 self._send(404, {"error": "not_found"})
